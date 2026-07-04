@@ -42,6 +42,15 @@ if (!is_dir(UPLOAD_DIR)) {
 }
 
 // ============================================================
+// FIX: Force LibreOffice to use a writable profile directory
+// ============================================================
+putenv('HOME=/tmp');
+$profileDir = '/tmp/libreoffice-profile';
+if (!is_dir($profileDir)) {
+    mkdir($profileDir, 0700, true);
+}
+
+// ============================================================
 // AJAX HANDLER
 // ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
@@ -77,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 }
 
 // ============================================================
-// MAIN FUNCTION: HANDLE UPLOAD AND CONVERSION
+// MAIN FUNCTION: HANDLE UPLOAD AND CONVERSION (FIXED)
 // ============================================================
 function handleUpload($file)
 {
@@ -119,18 +128,34 @@ function handleUpload($file)
     $pdfFilename = $randomName . '.pdf';
     $pdfPath = UPLOAD_DIR . $pdfFilename;
 
-    $cmd = escapeshellcmd(LIBREOFFICE_PATH) 
-        . ' --headless --convert-to pdf --outdir ' . escapeshellarg(UPLOAD_DIR) 
+    // ---- FIX: Ensure LibreOffice profile exists and HOME is set ----
+    // (already set globally, but we repeat for safety)
+    putenv('HOME=/tmp');
+    $profileDir = '/tmp/libreoffice-profile';
+    if (!is_dir($profileDir)) {
+        mkdir($profileDir, 0700, true);
+    }
+
+    // Build command with all recommended headless flags and explicit UserInstallation
+    $cmd = escapeshellcmd(LIBREOFFICE_PATH)
+        . ' --headless --nologo --nodefault --nolockcheck --nofirststartwizard'
+        . ' -env:UserInstallation=file://' . $profileDir
+        . ' --convert-to pdf --outdir ' . escapeshellarg(UPLOAD_DIR)
         . ' ' . escapeshellarg($wordPath);
 
-    // 8. Execute conversion
+    // 8. Execute conversion, capturing both stdout and stderr
     exec($cmd . ' 2>&1', $output, $returnCode);
 
     // 9. Check result
     if ($returnCode !== 0 || !file_exists($pdfPath) || filesize($pdfPath) === 0) {
         // Clean up word file
         if (file_exists($wordPath)) unlink($wordPath);
-        return ['error' => 'Conversion failed. Ensure LibreOffice is installed and accessible. Error output: ' . implode("\n", $output)];
+        // Return detailed error
+        $errorMsg = 'Conversion failed. LibreOffice returned code ' . $returnCode . '.';
+        if (!empty($output)) {
+            $errorMsg .= ' Output: ' . implode("\n", $output);
+        }
+        return ['error' => $errorMsg];
     }
 
     // 10. Success: return paths for download and cleanup
@@ -141,7 +166,7 @@ function handleUpload($file)
 }
 
 // ============================================================
-// FRONTEND HTML (only if not POST)
+// FRONTEND HTML (unchanged)
 // ============================================================
 ?>
 <!DOCTYPE html>
