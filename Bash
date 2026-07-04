@@ -1,0 +1,11 @@
+export HOME=/tmp && \
+mkdir -p /tmp/libreoffice-profile && \
+libreoffice --headless \
+--nologo \
+--nolockcheck \
+--nodefault \
+--nofirststartwizard \
+-env:UserInstallation=file:///tmp/libreoffice-profile \
+--convert-to pdf \
+--outdir output \
+uploads/file.docx
