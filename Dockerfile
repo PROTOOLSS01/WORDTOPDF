@@ -1,22 +1,14 @@
-FROM php:8.3-apache
-
-RUN apt-get update && \
-    apt-get install -y \
+# Install LibreOffice
+RUN apt-get update && apt-get install -y \
     libreoffice \
     libreoffice-writer \
-    fonts-dejavu \
-    fonts-liberation \
-    qpdf && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-COPY . /var/www/html/
+# Set HOME environment variable for PHP and LibreOffice
+ENV HOME=/tmp
 
-RUN mkdir -p /var/www/html/uploads \
-    /var/www/html/output && \
-    chmod -R 777 /var/www/html/uploads \
-    /var/www/html/output
-    ENV HOME=/tmp
-RUN mkdir -p /tmp/libreoffice-profile && chmod -R 777 /tmp
+# Create the profile directory and set permissions
+RUN mkdir -p /tmp/libreoffice-profile && chmod 700 /tmp/libreoffice-profile
 
-EXPOSE 80
+# Create the upload temp directory
+RUN mkdir -p /app/temp && chmod 755 /app/temp
