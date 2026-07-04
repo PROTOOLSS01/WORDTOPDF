@@ -16,5 +16,7 @@ RUN mkdir -p /var/www/html/uploads \
     /var/www/html/output && \
     chmod -R 777 /var/www/html/uploads \
     /var/www/html/output
+    ENV HOME=/tmp
+RUN mkdir -p /tmp/libreoffice-profile && chmod -R 777 /tmp
 
 EXPOSE 80
