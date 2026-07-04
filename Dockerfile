@@ -1,14 +1,12 @@
-# Install LibreOffice
+FROM php:8.2-apache
+
 RUN apt-get update && apt-get install -y \
     libreoffice \
     libreoffice-writer \
     && rm -rf /var/lib/apt/lists/*
 
-# Set HOME environment variable for PHP and LibreOffice
-ENV HOME=/tmp
+COPY . /var/www/html/
 
-# Create the profile directory and set permissions
-RUN mkdir -p /tmp/libreoffice-profile && chmod 700 /tmp/libreoffice-profile
+EXPOSE 80
 
-# Create the upload temp directory
-RUN mkdir -p /app/temp && chmod 755 /app/temp
+CMD ["apache2-foreground"]
