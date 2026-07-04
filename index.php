@@ -174,7 +174,7 @@ function handleUpload($file)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Word to PDF Converter | ProToolss</title>
+    <title>Word to PDF Converter | ProToolss | WWW.PROTOOLSS.ONLINE</title>
     <meta name="description" content="Convert Word documents (.doc, .docx) to PDF instantly using this free, secure, and production-ready converter.">
     <meta name="keywords" content="word to pdf, doc to pdf, docx to pdf, free converter, online converter">
 
